@@ -1,6 +1,6 @@
 # HelpyChat QA Automation
 
-> AI Helpy Chat의 핵심 사용자 흐름을 검증하고, 실패 증거를 남기도록 설계한 E2E QA 자동화 프로젝트입니다.
+> AI Helpy Chat의 핵심은 사용자 경험 기반 시나리오를 검증하고, 실패 증거를 남기도록 설계한 E2E QA 자동화 프로젝트입니다.
 
 ![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
 ![pytest](https://img.shields.io/badge/pytest-9.0.3-0A9EDC?logo=pytest&logoColor=white)
