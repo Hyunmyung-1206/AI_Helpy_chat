@@ -59,9 +59,6 @@ class TestPptCreate:
         self.download_wait = WebDriverWait(self.driver, DOWNLOAD_TIMEOUT_SECONDS)
         self.ppt_page = PptPage(self.driver)
 
-    def show_step(self, page, step_no, message):
-        page.show_step(f"Step.{step_no} {message}")
-
     def assert_error_message_equals(self, actual_message, expected_message, field_name):
         assert actual_message == expected_message, (
             f"{field_name} 에러 메시지가 한국어 기준 문구와 일치하지 않습니다. "
@@ -113,11 +110,11 @@ class TestPptCreate:
 
         page.navigate()
         page.verify_ppt_page_url()
-        self.show_step(page, 1, f"PPT 생성 페이지 진입 - {scenario}")
+        page.show_step(f"Step.1 PPT 생성 페이지 진입 - {scenario}")
         logger.info(f"[{scenario}] PPT 생성 페이지 이동 완료")
 
         page.clear_inputs()
-        self.show_step(page, 2, f"입력 필드 초기화 - {scenario}")
+        page.show_step(f"Step.2 입력 필드 초기화 - {scenario}")
         logger.info(f"[{scenario}] 입력 필드 초기화 완료")
 
         return page
@@ -144,22 +141,22 @@ class TestPptCreate:
         self.assert_generate_enabled(page)
 
         page.click_generate_button()
-        self.show_step(page, 4, "생성 버튼 클릭")
+        page.show_step("Step.4 생성 버튼 클릭")
         logger.info(f"[{scenario}] 생성 버튼 클릭 완료")
 
         try:
             page.click_modal_generate_button()
-            self.show_step(page, 5, "모달 내부 생성 버튼 클릭")
+            page.show_step("Step.5 모달 내부 생성 버튼 클릭")
             logger.info(f"[{scenario}] 모달 내부 생성 버튼 클릭 완료")
         except TimeoutException:
             logger.info(f"[{scenario}] 확인 모달 없이 생성이 시작되었습니다.")
 
-        self.show_step(page, 6, "생성 시작 확인")
+        page.show_step("Step.6 생성 시작 확인")
         page.wait_until_generation_starts(self.long_wait)
         logger.info(f"[{scenario}] 생성 시작 확인 완료")
 
     def wait_generation_complete(self, page, scenario):
-        self.show_step(page, 7, "생성 완료 확인")
+        page.show_step("Step.7 생성 완료 확인")
         page.wait_until_generation_completes(self.long_wait)
         assert page.is_result_download_button_visible(), (
             "PPT 생성 결과 다운로드 버튼이 표시되지 않았습니다."
@@ -170,7 +167,7 @@ class TestPptCreate:
         before_files = set(download_dir.iterdir())
 
         page.click_download_button()
-        self.show_step(page, 8, "생성 결과 다운로드 버튼 클릭")
+        page.show_step("Step.8 생성 결과 다운로드 버튼 클릭")
         logger.info(f"[{scenario}] 생성 결과 다운로드 버튼 클릭 완료")
 
         def is_download_completed(driver):
@@ -194,14 +191,14 @@ class TestPptCreate:
         assert all(file.stat().st_size > 0 for file in downloaded_files), (
             f"다운로드된 PPTX 파일 크기가 0입니다. files={downloaded_files}"
         )
-        self.show_step(page, 9, "다운로드 완료 확인")
+        page.show_step("Step.9 다운로드 완료 확인")
         logger.info(f"[{scenario}] 다운로드 완료 파일: {[file.name for file in downloaded_files]}")
 
         for file in downloaded_files:
             file.unlink()
         logger.info(f"[{scenario}] 다운로드 검증 파일 삭제 완료")
 
-    @pytest.mark.ui
+    @pytest.mark.slow
     def test_ppt_create_full_option(self, logged_in_driver):
         """
         PPT 전체 입력값 생성 시나리오
@@ -220,14 +217,14 @@ class TestPptCreate:
         page = self.setup_page(logged_in_driver, scenario)
 
         self.enter_valid_inputs(page)
-        self.show_step(page, 3, "주제 / 지시사항 / 슬라이드 수 / 섹션 수 입력")
+        page.show_step("Step.3 주제 / 지시사항 / 슬라이드 수 / 섹션 수 입력")
         logger.info(f"[{scenario}] 필수 입력값 입력 완료")
 
         self.start_generation(page, scenario)
         self.wait_generation_complete(page, scenario)
 
-    @pytest.mark.ui
-    def test_ppt_download_file_contract(self, logged_in_driver, temp_download_dir):
+    @pytest.mark.slow
+    def test_ppt_download_file_contract(self, logged_in_driver, download_dir):
         """
         PPT 다운로드 파일 품질 검증 보류 시나리오
 
@@ -244,7 +241,7 @@ class TestPptCreate:
         self.enter_valid_inputs(page)
         self.start_generation(page, scenario)
         self.wait_generation_complete(page, scenario)
-        self.download_result(page, scenario, temp_download_dir)
+        self.download_result(page, scenario, download_dir)
 
     @pytest.mark.detail
     def test_ppt_topic_validation(self, logged_in_driver):
@@ -266,10 +263,10 @@ class TestPptCreate:
 
         page.enter_topic("")
         page.blur_active_element()
-        self.show_step(page, 3, "주제 0자 입력")
+        page.show_step("Step.3 주제 0자 입력")
         empty_error = self.assert_topic_error_visible(page)
         self.assert_error_message_equals(empty_error, TOPIC_LENGTH_ERROR_MESSAGE, "주제 0자")
-        self.show_step(page, 4, "주제 0자 에러 메시지 확인")
+        page.show_step("Step.4 주제 0자 에러 메시지 확인")
         logger.info(f"[{scenario}] 주제 0자 에러 메시지: {empty_error}")
 
         page.enter_topic("달" * MAX_TOPIC_LENGTH)
@@ -278,7 +275,7 @@ class TestPptCreate:
             f"주제 입력값 길이가 다릅니다. expected={MAX_TOPIC_LENGTH}, actual={actual_length}"
         )
         self.assert_topic_error_hidden(page)
-        self.show_step(page, 5, "주제 500자 입력값 길이 확인")
+        page.show_step("Step.5 주제 500자 입력값 길이 확인")
 
         page.enter_topic("달" * OVER_TOPIC_LENGTH)
         page.blur_active_element()
@@ -288,13 +285,13 @@ class TestPptCreate:
             TOPIC_LENGTH_ERROR_MESSAGE,
             "주제 501자",
         )
-        self.show_step(page, 6, "주제 501자 에러 메시지 확인")
+        page.show_step("Step.6 주제 501자 에러 메시지 확인")
         logger.info(f"[{scenario}] 주제 501자 에러 메시지: {over_limit_error}")
 
         page.enter_topic(COMPLEX_TEXT)
         assert page.get_topic_value() == COMPLEX_TEXT, "복합 주제 입력값이 유지되지 않았습니다."
         self.assert_topic_error_hidden(page)
-        self.show_step(page, 7, "한글 / 영문 대소문자 / 숫자 / 특수문자 / 띄어쓰기 주제 입력 확인")
+        page.show_step("Step.7 한글 / 영문 대소문자 / 숫자 / 특수문자 / 띄어쓰기 주제 입력 확인")
 
     @pytest.mark.detail
     def test_ppt_instructions_validation(self, logged_in_driver):
@@ -318,7 +315,7 @@ class TestPptCreate:
             "복합 지시사항 입력값이 유지되지 않았습니다."
         )
         self.assert_instructions_error_hidden(page)
-        self.show_step(page, 3, "한글 / 영문 대소문자 / 숫자 / 특수문자 / 띄어쓰기 지시사항 입력 확인")
+        page.show_step("Step.3 한글 / 영문 대소문자 / 숫자 / 특수문자 / 띄어쓰기 지시사항 입력 확인")
 
         valid_instructions = multiline_text("테스트", MAX_INSTRUCTIONS_LENGTH)
         page.enter_instructions(valid_instructions)
@@ -328,7 +325,7 @@ class TestPptCreate:
             f"expected={MAX_INSTRUCTIONS_LENGTH}, actual={actual_length}"
         )
         self.assert_instructions_error_hidden(page)
-        self.show_step(page, 4, "줄바꿈 포함 지시사항 2000자 입력값 확인")
+        page.show_step("Step.4 줄바꿈 포함 지시사항 2000자 입력값 확인")
 
         over_limit_instructions = multiline_text("테스트", OVER_INSTRUCTIONS_LENGTH)
         page.enter_instructions(over_limit_instructions)
@@ -339,7 +336,7 @@ class TestPptCreate:
             INSTRUCTIONS_LENGTH_ERROR_MESSAGE,
             "지시사항 2001자",
         )
-        self.show_step(page, 5, "지시사항 2001자 에러 메시지 확인")
+        page.show_step("Step.5 지시사항 2001자 에러 메시지 확인")
         logger.info(f"[{scenario}] 지시사항 2001자 에러 메시지: {error_message}")
 
     @pytest.mark.detail
@@ -377,16 +374,16 @@ class TestPptCreate:
         assert page.get_slides_count_value() == slides_count, (
             f"{field_name} 입력값이 유지되지 않았습니다."
         )
-        self.show_step(page, 3, f"{field_name} 입력 확인")
+        page.show_step(f"Step.3 {field_name} 입력 확인")
 
         actual_error = page.get_slides_count_error_text()
         if expected_error:
             self.assert_range_error_message(actual_error, field_name)
-            self.show_step(page, 4, f"{field_name} 에러 메시지 확인")
+            page.show_step(f"Step.4 {field_name} 에러 메시지 확인")
             logger.info(f"[{scenario}] {field_name} 에러 메시지: {actual_error}")
         else:
             self.assert_count_error_hidden(actual_error, field_name)
-            self.show_step(page, 4, f"{field_name} 정상 입력 확인")
+            page.show_step(f"Step.4 {field_name} 정상 입력 확인")
 
     @pytest.mark.detail
     @pytest.mark.parametrize(
@@ -422,16 +419,16 @@ class TestPptCreate:
         assert page.get_section_count_value() == section_count, (
             f"{field_name} 입력값이 유지되지 않았습니다."
         )
-        self.show_step(page, 3, f"{field_name} 입력 확인")
+        page.show_step(f"Step.3 {field_name} 입력 확인")
 
         actual_error = page.get_section_count_error_text()
         if expected_error:
             self.assert_section_range_error_message(actual_error, field_name)
-            self.show_step(page, 4, f"{field_name} 에러 메시지 확인")
+            page.show_step(f"Step.4 {field_name} 에러 메시지 확인")
             logger.info(f"[{scenario}] {field_name} 에러 메시지: {actual_error}")
         else:
             self.assert_count_error_hidden(actual_error, field_name)
-            self.show_step(page, 4, f"{field_name} 정상 입력 확인")
+            page.show_step(f"Step.4 {field_name} 정상 입력 확인")
 
     @pytest.mark.detail
     @pytest.mark.parametrize(
@@ -476,7 +473,7 @@ class TestPptCreate:
         enter_method("0")
         page.blur_active_element()
         assert get_method() == "", f"{field_name} 0 입력값이 차단되지 않았습니다."
-        self.show_step(page, 3, f"{field_name} 0 입력 불가 확인")
+        page.show_step(f"Step.3 {field_name} 0 입력 불가 확인")
         logger.info(f"[{scenario}] {field_name} 0 입력 불가 확인 완료")
 
     @pytest.mark.detail
@@ -524,7 +521,7 @@ class TestPptCreate:
         assert get_method() == NUMERIC_TEXT_EXTRACTED_VALUE, (
             f"{field_name} 필드가 문자 포함 입력에서 숫자만 반영하지 않았습니다."
         )
-        self.show_step(page, 3, f"{field_name} 필드 문자 포함 입력 시 숫자만 반영 확인")
+        page.show_step(f"Step.3 {field_name} 필드 문자 포함 입력 시 숫자만 반영 확인")
         logger.info(f"[{scenario}] {field_name} 문자 포함 입력값 검증 완료")
 
     @pytest.mark.detail
@@ -565,7 +562,7 @@ class TestPptCreate:
             f"{field_name} 긴 입력값이 원본 그대로 유지되지 않았습니다. "
             f"expected={long_value}, actual={get_method()}"
         )
-        self.show_step(page, 4, f"{field_name} 긴 입력값 원본 유지 확인")
+        page.show_step(f"Step.4 {field_name} 긴 입력값 원본 유지 확인")
 
     @pytest.mark.detail
     def test_ppt_generate_button_state(self, logged_in_driver):
@@ -586,32 +583,32 @@ class TestPptCreate:
         page = self.setup_page(logged_in_driver, scenario)
 
         self.assert_generate_disabled(page)
-        self.show_step(page, 3, "주제 미입력 상태 생성 버튼 비활성화 확인")
+        page.show_step("Step.3 주제 미입력 상태 생성 버튼 비활성화 확인")
         logger.info(f"[{scenario}] 주제 미입력 상태 생성 버튼 비활성화 확인 완료")
 
         page.enter_instructions(VALID_INSTRUCTIONS)
         self.assert_generate_disabled(page)
-        self.show_step(page, 4, "주제 미입력 / 지시사항 입력 상태 생성 버튼 비활성화 확인")
+        page.show_step("Step.4 주제 미입력 / 지시사항 입력 상태 생성 버튼 비활성화 확인")
         logger.info(f"[{scenario}] 주제 미입력 / 지시사항 입력 상태 생성 버튼 비활성화 확인 완료")
 
         page.enter_topic(VALID_TOPIC)
         page.enter_instructions("")
         self.assert_generate_enabled(page)
-        self.show_step(page, 5, "주제 입력 / 지시사항 미입력 상태 생성 버튼 활성화 확인")
+        page.show_step("Step.5 주제 입력 / 지시사항 미입력 상태 생성 버튼 활성화 확인")
         logger.info(f"[{scenario}] 주제 입력 / 지시사항 미입력 상태 생성 버튼 활성화 확인 완료")
 
         page.enter_topic(VALID_TOPIC)
         page.enter_slides_count("")
         page.enter_section_count("")
         self.assert_generate_enabled(page)
-        self.show_step(page, 6, "주제만 입력한 상태 생성 버튼 활성화 확인")
+        page.show_step("Step.6 주제만 입력한 상태 생성 버튼 활성화 확인")
         logger.info(f"[{scenario}] 주제만 입력한 상태 생성 버튼 활성화 확인 완료")
 
         page.enter_instructions(VALID_INSTRUCTIONS)
         page.enter_slides_count(VALID_SLIDES_COUNT)
         page.enter_section_count(VALID_SECTION_COUNT)
         self.assert_generate_enabled(page)
-        self.show_step(page, 7, "전체 입력값 입력 상태 생성 버튼 활성화 확인")
+        page.show_step("Step.7 전체 입력값 입력 상태 생성 버튼 활성화 확인")
         logger.info(f"[{scenario}] 전체 입력값 입력 상태 생성 버튼 활성화 확인 완료")
 
     @pytest.mark.detail
@@ -632,14 +629,14 @@ class TestPptCreate:
         page.enter_topic(VALID_TOPIC)
         assert page.get_topic_value() == VALID_TOPIC, "주제 입력값이 유지되지 않았습니다."
         self.assert_generate_enabled(page)
-        self.show_step(page, 3, "주제 정상값 입력 후 다시생성 버튼 활성화 확인")
+        page.show_step("Step.3 주제 정상값 입력 후 다시생성 버튼 활성화 확인")
         logger.info(f"[{scenario}] 주제 정상값 입력 후 다시생성 버튼 활성화 확인 완료")
 
         page.clear_topic()
         page.blur_active_element()
         assert page.get_topic_value() == "", "주제 입력값이 삭제되지 않았습니다."
         self.assert_generate_disabled(page)
-        self.show_step(page, 4, "주제 입력값 삭제 후 다시생성 버튼 비활성화 확인")
+        page.show_step("Step.4 주제 입력값 삭제 후 다시생성 버튼 비활성화 확인")
         logger.info(f"[{scenario}] 주제 입력값 삭제 후 다시생성 버튼 비활성화 확인 완료")
 
     @pytest.mark.detail
@@ -665,7 +662,7 @@ class TestPptCreate:
         blank_error = self.assert_topic_error_visible(page)
         self.assert_error_message_equals(blank_error, TOPIC_LENGTH_ERROR_MESSAGE, "공백 주제")
         self.assert_generate_disabled(page)
-        self.show_step(page, 3, "공백만 있는 주제 에러 메시지 및 다시생성 버튼 비활성화 확인")
+        page.show_step("Step.3 공백만 있는 주제 에러 메시지 및 다시생성 버튼 비활성화 확인")
         logger.info(f"[{scenario}] 공백 주제 에러 메시지: {blank_error}")
 
     @pytest.mark.detail
@@ -688,12 +685,12 @@ class TestPptCreate:
         page = self.setup_page(logged_in_driver, scenario)
 
         self.enter_valid_inputs(page)
-        self.show_step(page, 3, "주제 / 지시사항 / 슬라이드 수 / 섹션 수 입력")
+        page.show_step("Step.3 주제 / 지시사항 / 슬라이드 수 / 섹션 수 입력")
 
         self.start_generation(page, scenario)
 
         page.click_stop_button()
-        self.show_step(page, 7, "생성 중지 버튼 클릭")
+        page.show_step("Step.7 생성 중지 버튼 클릭")
         logger.info(f"[{scenario}] 생성 중지 버튼 클릭 완료")
 
         stop_message = page.get_stop_message_text()
@@ -701,6 +698,6 @@ class TestPptCreate:
         assert any(keyword in stop_message for keyword in STOP_MESSAGE_KEYWORDS), (
             f"생성 중지 메시지가 기대 범위와 다릅니다. actual={stop_message}"
         )
-        self.show_step(page, 8, "생성 중지 메시지 확인")
+        page.show_step("Step.8 생성 중지 메시지 확인")
         logger.info(f"[{scenario}] 생성 중지 메시지: {stop_message}")
 

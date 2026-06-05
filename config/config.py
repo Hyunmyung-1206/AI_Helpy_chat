@@ -5,6 +5,7 @@ objects do not need to read `.env` directly.
 """
 
 import os
+import tempfile
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -20,7 +21,10 @@ TEST_USER = {
     "pw": os.getenv("TEST_USER_PW"),
 }
 
-DOWNLOAD_DIR = os.getenv("DOWNLOAD_DIR", str(Path.home() / "Downloads"))
+DOWNLOAD_DIR = os.getenv(
+    "DOWNLOAD_DIR",
+    str(Path(tempfile.gettempdir()) / "ai_helpy_chat_downloads"),
+)
 DEFAULT_API_TIMEOUT = int(os.getenv("DEFAULT_API_TIMEOUT", "10"))
 
 JIRA_URL = os.getenv("JIRA_BASE_URL")

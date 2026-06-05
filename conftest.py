@@ -18,7 +18,7 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 from selenium.common.exceptions import TimeoutException
 
-from config.config import BASE_API_URL, BASE_UI_URL, DOWNLOAD_DIR, TEST_USER
+from config.config import BASE_API_URL, BASE_UI_URL, TEST_USER
 from pages.login_page import LoginPage
 from pages.signup_page import SignupPage
 from utils.jira_notifier import (
@@ -153,15 +153,15 @@ def pytest_sessionfinish(session, exitstatus):
 # [2] UI 자동화 관련 Fixture: WebDriver
 # =========================================================
 @pytest.fixture
-def firefox_download_dir(tmp_path):
-    """Firefox 전용 임시 다운로드 경로. driver 초기화 시 주입되어 temp_download_dir과 공유."""
+def download_dir(tmp_path):
+    """테스트별 격리된 임시 다운로드 경로."""
     path = tmp_path / "downloads"
     path.mkdir()
     return path
 
 
 @pytest.fixture(scope="function")
-def driver(browser, firefox_download_dir):
+def driver(browser, download_dir):
     """
     각 테스트 함수마다 Selenium WebDriver를 초기화하고 브라우저 세션을 시작함.
     테스트 종료 후 브라우저를 닫음(Teardown).
@@ -182,7 +182,7 @@ def driver(browser, firefox_download_dir):
         options.add_experimental_option(
             "prefs",
             {
-                "download.default_directory": DOWNLOAD_DIR,
+                "download.default_directory": str(download_dir),
                 "download.prompt_for_download": False,
                 "download.directory_upgrade": True,
                 "safebrowsing.enabled": True,
@@ -204,7 +204,7 @@ def driver(browser, firefox_download_dir):
         options.add_experimental_option(
             "prefs",
             {
-                "download.default_directory": DOWNLOAD_DIR,
+                "download.default_directory": str(download_dir),
                 "download.prompt_for_download": False,
                 "download.directory_upgrade": True,
                 "safebrowsing.enabled": True,
@@ -223,7 +223,7 @@ def driver(browser, firefox_download_dir):
             options.add_argument("-headless")
 
         options.set_preference("browser.download.folderList", 2)
-        options.set_preference("browser.download.dir", str(firefox_download_dir))
+        options.set_preference("browser.download.dir", str(download_dir))
         options.set_preference("browser.download.useDownloadDir", True)
         options.set_preference("browser.download.manager.showWhenStarting", False)
         options.set_preference(
@@ -346,21 +346,20 @@ def logged_in_driver(driver, base_url, test_user):
 # [6] 다운로드 검증용 임시 디렉토리 Fixture
 # =========================================================
 @pytest.fixture
-def temp_download_dir(tmp_path, logged_in_driver, browser, firefox_download_dir):
+def temp_download_dir(logged_in_driver, browser, download_dir):
     """
-    테스트별 격리된 임시 다운로드 경로를 제공.
-    Chrome/Edge: CDP로 tmp_path로 경로 변경.
-    Firefox: driver 초기화 시 주입한 firefox_download_dir 재사용 (CDP 미지원).
+    테스트별 격리된 임시 다운로드 경로를 제공합니다.
+    Chrome/Edge: CDP로 download_dir로 경로 변경.
+    Firefox: driver 초기화 시 주입한 download_dir 재사용.
     테스트 종료 시 pytest가 자동 삭제.
     """
-    if browser == "firefox":
-        yield firefox_download_dir
-    else:
+    if browser != "firefox":
         logged_in_driver.execute_cdp_cmd("Page.setDownloadBehavior", {
             "behavior": "allow",
-            "downloadPath": str(tmp_path)
+            "downloadPath": str(download_dir),
         })
-        yield tmp_path
+
+    yield download_dir
 
 
 # =========================================================

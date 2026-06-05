@@ -187,7 +187,7 @@ class TestDeepInvestigation:
             file.unlink()
         logger.info(f"[{scenario}] 다운로드 검증 파일 삭제 완료")
 
-    @pytest.mark.ui
+    @pytest.mark.slow
     def test_full_generation_result(self, logged_in_driver):
         """
         심층 조사 생성 결과 검증 시나리오
@@ -218,7 +218,7 @@ class TestDeepInvestigation:
         self.show_step(page, 8, "생성 결과 영역 노출 확인")
         logger.info(f"[{scenario}] 생성 결과 영역 노출 확인 완료")
 
-    @pytest.mark.ui
+    @pytest.mark.slow
     def test_markdown_download_result(self, logged_in_driver, temp_download_dir):
         """
         심층 조사 마크다운 다운로드 검증 보류 시나리오
