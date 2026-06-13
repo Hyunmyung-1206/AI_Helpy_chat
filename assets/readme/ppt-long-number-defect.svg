@@ -15,7 +15,7 @@
 
     <text x="70" y="300" font-size="20" font-weight="700" fill="#2b2435">실제 출력</text>
     <rect x="300" y="260" width="520" height="58" rx="10" fill="#fff5f5" stroke="#ef6b73" stroke-width="2"/>
-    <text x="330" y="298" font-size="24" font-weight="700" fill="#17131f">111111111111111120</text>
+    <text x="330" y="298" font-size="24" font-weight="700" fill="#17131f">Infinity</text>
 
     <rect x="865" y="145" width="290" height="185" rx="16" fill="#f8f7fc"/>
     <text x="900" y="190" font-size="20" font-weight="700" fill="#2b2435">기대</text>
