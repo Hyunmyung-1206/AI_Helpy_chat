@@ -1,4 +1,4 @@
-# HelpyChat QA Automation
+# AI HelpyChat QA Automation
 
 > 생성형 AI 기반 문서·콘텐츠 생성 서비스의 사용자 흐름을 검증하고,
 > 실패 원인을 추적할 수 있는 증거를 수집하도록 설계한 E2E QA 프로젝트입니다.
