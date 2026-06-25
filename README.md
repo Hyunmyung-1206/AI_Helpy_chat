@@ -1,9 +1,9 @@
 # AI HelpyChat QA Automation
 
-> 📌 **이 저장소는 엘리스 KDT 5인 팀 프로젝트의 협업 원본입니다.**
+> 📌 **이 저장소는 엘리스 KDT 5인 팀 프로젝트의 협업 원본입니다.**<br>
 > 제가 담당한 영역만 별도로 정리한 **개인 포트폴리오**는 👉 [**AI_Helpy_Chat_LEE**](https://github.com/Hyunmyung-1206/AI_Helpy_Chat_LEE.git) 을 참고해 주세요.
 
-> 생성형 AI 기반 문서·콘텐츠 생성 서비스의 사용자 흐름을 검증하고,
+> 생성형 AI 기반 문서·콘텐츠 생성 서비스의 사용자 흐름을 검증하고,<br>
 > 실패 원인을 추적할 수 있는 증거를 수집하도록 설계한 E2E QA 프로젝트입니다.
 
 ![Python](https://img.shields.io/badge/Python-3.14-3776AB?logo=python&logoColor=white)
