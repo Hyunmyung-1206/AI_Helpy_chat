@@ -1,5 +1,8 @@
 # AI HelpyChat QA Automation
 
+> 📌 **이 저장소는 엘리스 KDT 5인 팀 프로젝트의 협업 원본입니다.**
+> 제가 담당한 영역만 별도로 정리한 **개인 포트폴리오**는 👉 [**AI_Helpy_Chat_LEE**](https://github.com/Hyunmyung-1206/AI_Helpy_Chat_LEE.git) 을 참고해 주세요.
+
 > 생성형 AI 기반 문서·콘텐츠 생성 서비스의 사용자 흐름을 검증하고,
 > 실패 원인을 추적할 수 있는 증거를 수집하도록 설계한 E2E QA 프로젝트입니다.
 
@@ -19,7 +22,7 @@
 | 주요 역할 | TC 수행, 시나리오 설계·자동화, 결함 리포트, 회귀 테스트, 결과 문서화, CI/CD 연동 |
 | 주 실행 환경 | Windows + Chrome |
 | 교차 브라우저 | Edge, Firefox |
-| 핵심 링크 | [GitHub 저장소](https://github.com/Hyunmyung-1206/AI_Helpy_chat) · [QA 최종 산출물](https://dirt-brand-7d0.notion.site/AI-337f6266ce2a8077a9d4ea1b6878a38d) |
+| 핵심 링크 |  [QA 최종 산출물](https://dirt-brand-7d0.notion.site/AI-337f6266ce2a8077a9d4ea1b6878a38d) |
 
 ![AI Helpy Chat 주요 검증 기능](assets/readme/service-overview.svg)
 
